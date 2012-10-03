@@ -1,64 +1,66 @@
 require 'active_shipping'
 
-class UspsShipping
-  include ActiveMerchant::Shipping
+module Piggybak
+  class ShippingCalculator::UspsShipping
+    include ActiveMerchant::Shipping
 
-  KEYS = ["login", "password", "service_name"]
+    KEYS = ["login", "password", "service_name"]
 
-  def self.request_rates(method, object)
-    begin
-      return {} if object.is_downloadable?
-      return {} if object.weight == 0
+    def self.request_rates(method, object)
+      begin
+        return {} if object.is_downloadable?
+        return {} if object.weight == 0
 
-      Rails.cache.fetch("usps-#{object.cache_key}", :expires_in => 5.minutes) do
-        h_meta = method.metadata.inject({}) { |h, b| h[b.key.to_sym] = b.value; h }
+        Rails.cache.fetch("usps-#{object.cache_key}", :expires_in => 5.minutes) do
+          h_meta = method.metadata.inject({}) { |h, b| h[b.key.to_sym] = b.value; h }
 
-        usps = USPS.new(:login => h_meta[:login],
-                  :password => h_meta[:password])
+          usps = USPS.new(:login => h_meta[:login],
+                          :password => h_meta[:password])
 
-        origin = Location.new(:country => "US",
-                          :state => "CA",
-                          :city => "San Diego",
-                          :zip => "92126")
+          origin = Location.new(:country => "US",
+                                :state => "CA",
+                                :city => "San Diego",
+                                :zip => "92126")
 
-        response = usps.find_rates(origin, object.destination, object.packages)
+          response = usps.find_rates(origin, object.destination, object.packages)
 
-        calculated_rates = {}
+          calculated_rates = {}
 
-        response.rates.each do |rate|
-          freight = rate.total_price.to_f / 100
+          response.rates.each do |rate|
+            freight = rate.total_price.to_f / 100
 
-          next if rate.service_name == 'USPS Media Mail' && object.weight < 16
-          next if rate.service_name == 'USPS First-Class Mail Parcel' && object.weight >= 14
+            next if rate.service_name == 'USPS Media Mail' && object.weight < 16
+            next if rate.service_name == 'USPS First-Class Mail Parcel' && object.weight >= 14
 
-          # padding based on destination and weight
-          padding = (object.weight >= 14 || object.destination.country.to_s != 'United States') ? 3.00 : 1.50 
+            # padding based on destination and weight
+            padding = (object.weight >= 14 || object.destination.country.to_s != 'United States') ? 3.00 : 1.50 
 
-          handling = ((object.line_item_total + freight)*0.03).to_c + padding
+            handling = ((object.line_item_total + freight)*0.03).to_c + padding
 
-          calculated_rates[rate.service_name] = ((freight + handling)*100).to_i.to_f / 100
+            calculated_rates[rate.service_name] = ((freight + handling)*100).to_i.to_f / 100
+          end
+
+          calculated_rates
         end
-
-        calculated_rates
+      rescue Exception => e
+        Rails.logger.warn "Shipping calculation issue: #{e.inspect}"
+        return {}
       end
-    rescue Exception => e
-      Rails.logger.warn "Shipping calculation issue: #{e.inspect}"
-      return {}
     end
+
+    def self.available?(method, object)
+      rates = request_rates(method, object)
+
+      h_meta = method.metadata.inject({}) { |h, b| h[b.key.to_sym] = b.value; h }
+
+      rates.has_key?(h_meta[:service_name])
+    end 
+
+    def self.rate(method, object)
+      rates = request_rates(method, object)
+
+      h_meta = method.metadata.inject({}) { |h, b| h[b.key.to_sym] = b.value; h }
+      rates[h_meta[:service_name]] || 0
+    end 
   end
-
-  def self.available?(method, object)
-    rates = request_rates(method, object)
-
-    h_meta = method.metadata.inject({}) { |h, b| h[b.key.to_sym] = b.value; h }
-
-    rates.has_key?(h_meta[:service_name])
-  end 
-
-  def self.rate(method, object)
-    rates = request_rates(method, object)
-
-    h_meta = method.metadata.inject({}) { |h, b| h[b.key.to_sym] = b.value; h }
-    rates[h_meta[:service_name]] || 0
-  end 
 end
