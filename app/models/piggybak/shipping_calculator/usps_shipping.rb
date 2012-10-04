@@ -8,7 +8,6 @@ module Piggybak
 
     def self.request_rates(method, object)
       begin
-        return {} if object.is_downloadable?
         return {} if object.weight == 0
 
         Rails.cache.fetch("usps-#{object.cache_key}", :expires_in => 5.minutes) do
@@ -17,10 +16,10 @@ module Piggybak
           usps = USPS.new(:login => h_meta[:login],
                           :password => h_meta[:password])
 
-          origin = Location.new(:country => "US",
-                                :state => "CA",
-                                :city => "San Diego",
-                                :zip => "92126")
+          origin = Location.new(:country => Piggybak.config.origin_country,
+                                :state => Piggybak.config.origin_state,
+                                :city => Piggybak.config.origin_city,
+                                :zip => Piggybak.config.origin_zip)
 
           response = usps.find_rates(origin, object.destination, object.packages)
 
