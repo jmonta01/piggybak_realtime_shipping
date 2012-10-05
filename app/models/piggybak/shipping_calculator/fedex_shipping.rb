@@ -22,7 +22,7 @@ module Piggybak
                                 :city => Piggybak.config.origin_city,
                                 :state => Piggybak.config.origin_state,
                                 :zip => Piggybak.config.origin_zip)
-          response = fedex.find_rates(origin, object.destination, object.packages)
+          response = fedex.find_rates(origin, object.destination, object.packages, {Piggybak.config.activeshipping_mode})
 
           calculated_rates = {}
           response.rates.each do |rate|
