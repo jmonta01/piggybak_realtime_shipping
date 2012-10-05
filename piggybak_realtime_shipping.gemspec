@@ -13,10 +13,9 @@ Gem::Specification.new do |s|
   s.summary     = "Shipping Calculator for Piggybak"
   s.description = "Shipping Calculator for Piggybak"
 
-  s.files = Dir["{app,config,db,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
+  s.files = Dir["{app,lib}/**/*"] + ["MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["test/**/*"]
 
   s.add_dependency "piggybak"
   s.add_dependency "active_shipping"
-
 end

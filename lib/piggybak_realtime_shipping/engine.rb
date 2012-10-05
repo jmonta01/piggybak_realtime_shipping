@@ -3,17 +3,23 @@ module PiggybakRealtimeShipping
     isolate_namespace PiggybakRealtimeShipping
 
     require 'piggybak/config_decorator'    
+    require 'piggybak_realtime_shipping/order_decorator'
+    require 'piggybak_realtime_shipping/cart_decorator'
 
-    initializer "piggy_back_realtime_shipping.include_on_piggybak_cart_and_order" do 
-      Piggybak::Order.send(:include, PiggybakRealtimeShipping)
-      Piggybak::Cart.send(:include, PiggybakRealtimeShipping)
+    config.to_prepare do
+      Piggybak::Order.send(:include, ::PiggybakRealtimeShipping::OrderDecorator)
+      Piggybak::Cart.send(:include, ::PiggybakRealtimeShipping::CartDecorator)
+    end
+
+    initializer "piggybak_realtime_shipping.reset_config" do
+      Piggybak.config.reset
     end
 
     initializer "piggybak_realtime_shipping.add_calculators" do
       Piggybak.config do |config|
-        config.shipping_calculators << "::Piggybak::ShippingCalculator::UpsShipping"
-        config.shipping_calculators << "::Piggybak::ShippingCalculator::UspsShipping"
-        config.shipping_calculators << "::Piggybak::ShippingCalculator::FedEx"
+        config.shipping_calculators << "::RealtimeShippingCalculator::UpsShipping"
+        config.shipping_calculators << "::RealtimeShippingCalculator::UspsShipping"
+        config.shipping_calculators << "::RealtimeShippingCalculator::FedexShipping"
       end
     end
   end

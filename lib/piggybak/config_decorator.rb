@@ -6,10 +6,10 @@ Piggybak::Config.class_eval do
     attr_accessor :origin_zip
     attr_accessor :origin_city
 
-    alias_method :old_reset, :reset
+    alias_method :core_reset, :reset
     def reset
-      old_reset
-      @activeshipping_mode = :test
+      core_reset
+      @activeshipping_mode = :production #test
       @origin_country = "US"
       @origin_city = "New York"
       @origin_state = "NY"
