@@ -23,7 +23,7 @@ module Piggybak
                                 :city => Piggybak.config.origin_city,
                                 :zip => Piggybak.config.origin_zip)
 
-          response = ups.find_rates(origin, object.destination, object.packages, {Piggybak.config.activeshipping_mode})
+          response = ups.find_rates(origin, object.destination, object.packages, {:test => Piggybak.config.activeshipping_mode})
 
           calculated_rates = {}
           response.rates.each do |rate|
