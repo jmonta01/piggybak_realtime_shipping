@@ -1,4 +1,4 @@
-class RealtimeShippingCalculator::UpsShipping
+class RealtimeShippingCalculator::UpsShipping < RealtimeShippingCalculator
   KEYS = ["login", "password", "key", "service_name", "origin_account"]
 
   def self.description

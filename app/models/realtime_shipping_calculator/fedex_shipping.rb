@@ -1,12 +1,8 @@
-class RealtimeShippingCalculator::FedexShipping
+class RealtimeShippingCalculator::FedexShipping < RealtimeShippingCalculator
   KEYS = ["key", "password", "account", "login"]
 
   def self.description
     "Real-time Fedex"
-  end
-
-  def self.available?(method, object)
-    object.items.length > 0
   end
 
   def self.request_rates(method, object)
