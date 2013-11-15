@@ -6,11 +6,11 @@ module PiggybakRealtimeShipping
     extend ActiveSupport::Concern
 
     def weight
-      result = 0
+      result = 2
   
-      self.items.each do |li|
-        result += li[:variant].item.weight.to_f*li[:quantity]
-      end
+      # self.items.each do |li|
+      #   result += li[:variant].item.weight.to_f*li[:quantity]
+      # end
       result
     end
   

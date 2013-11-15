@@ -5,13 +5,13 @@ module PiggybakRealtimeShipping
     extend ActiveSupport::Concern
 
     def weight
-      result = 0
+      result = 2
   
-      self.line_items.each do |li|
-        if !li._destroy
-          weight += li.variant.item.weight.to_f*li.quantity.to_i
-        end
-      end
+      # self.line_items.each do |li|
+      #   if !li._destroy
+      #     result += li.variant.item.weight.to_f*li.quantity.to_i
+      #   end
+      # end
   
       result
     end
