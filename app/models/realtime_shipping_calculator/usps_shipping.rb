@@ -5,6 +5,10 @@ class RealtimeShippingCalculator::UspsShipping < RealtimeShippingCalculator
     "Real-time USPS"
   end
 
+  def self.available?(method, object)
+    object.items.length > 0
+  end  
+
   def self.request_rates(method, object)
     begin
       return {} if object.weight == 0
