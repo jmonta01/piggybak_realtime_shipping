@@ -32,17 +32,17 @@ module PiggybakRealtimeShipping
     end
 
    def cache_key
-      li_details = []
-      self.line_items.each do |li|
-        if !li._destroy
-          li_details << "#{li.variant_id}-#{li.quantity.to_i}"
-        end
-      end
-      cart_info = li_details.join('--')
+      # li_details = []
+      # self.line_items.each do |li|
+      #   if !li._destroy
+      #     li_details << "#{li.variant_id}-#{li.quantity.to_i}"
+      #   end
+      # end
+      # cart_info = li_details.join('--')
   
-      address = self.shipping_address
-        cache_key = "#{cart_info}-#{address.country_id}-#{address.state_id}-#{address.zip}-#{address.city}-#{self.residential_shipping}"
-      Digest::MD5.hexdigest(cache_key)
+      # address = self.shipping_address
+      #   cache_key = "#{cart_info}-#{address.country_id}-#{address.state_id}-#{address.zip}-#{address.city}-#{self.residential_shipping}"
+      # Digest::MD5.hexdigest(cache_key)
     end
   end
 end
